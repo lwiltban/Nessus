@@ -29,6 +29,11 @@ namespace Nessus.Models
 
 
         /// <summary>
+        /// Lock object to lock list for copies, inserts, updates, and removals
+        /// </summary>
+        private static object _lock = new object();
+
+        /// <summary>
         /// Initialize the configs list to some default parameters for now
         /// </summary>
         void DefaultInit()
@@ -56,7 +61,26 @@ namespace Nessus.Models
         /// </summary>
         public ConfigurationRepository()
         {
-            DefaultInit();
+            lock (_lock)
+            {
+                DefaultInit();
+            }
+        }
+
+
+        /// <summary>
+        /// Helper function to get a valid copy of the Configurations by locking the list and copying it
+        /// </summary>
+        /// <returns>Copy of List of Configurations</returns>
+        List<Configuration> GetCopies()
+        {
+            List<Configuration> copies = null;
+            lock (_lock)
+            {
+                copies = configs.ToList();
+            }
+
+            return copies;
         }
 
 
@@ -66,8 +90,10 @@ namespace Nessus.Models
         /// <returns>Configurations object with an array of all Configuration objects in memory if valid max and offset, otherwise null</returns>
         public Configurations GetAll(int max, int offset)
         {
+            List<Configuration> copies = GetCopies();
+
             // Validate the max and offset based on the configurations we have
-            int configurationsCount = configs.Count();
+            int configurationsCount = copies.Count();
 
             // If offset is too large, this is fatal and we return null;
             if (offset > configurationsCount)
@@ -82,7 +108,7 @@ namespace Nessus.Models
             }
 
             // Get all the valid configs by skipping the offset and then taking the max and select them
-            var validConfigs = (from c in configs.Skip(offset).Take(max) select c);
+            var validConfigs = (from c in copies.Skip(offset).Take(max) select c);
 
             return new Configurations
             {
@@ -98,7 +124,11 @@ namespace Nessus.Models
         /// <returns>Returns the found Configuration, null otherwise</returns>
         public Configuration Get(string name)
         {
-            var config = configs.Where(c => c.name == name).FirstOrDefault();
+            Configuration config = null;
+            lock (_lock)
+            {
+                config = configs.Where(c => c.name == name).FirstOrDefault();
+            }
             return config;
         }
 
@@ -128,8 +158,10 @@ namespace Nessus.Models
                 }                
             }
 
+            List<Configuration> copies = GetCopies();
+
             // Now do the sort based on the sort parameters, this is some evil Linq 
-            IEnumerable<Configuration> query = from c in configs select c;
+            IEnumerable<Configuration> query = from c in copies select c;
             IOrderedEnumerable<Configuration> orderedQuery = null;
             for (int i = 0; i < sortParameters.Count(); i++)
             {
@@ -161,14 +193,18 @@ namespace Nessus.Models
         public Configuration Add(Configuration value)
         {
             // find if we already have the configuration
-            var config = configs.Where(c => c.name == value.name).FirstOrDefault();
-            if (config == null)
+            Configuration config = null;
+            lock (_lock)
             {
-                configs.Add(value);
-                return value;
+                config = configs.Where(c => c.name == value.name).FirstOrDefault();
+                if (config == null)
+                {
+                    configs.Add(value);
+                    config = value;
+                }
             }
 
-            return null;
+            return config;
         }
 
         
@@ -180,14 +216,18 @@ namespace Nessus.Models
         public Configuration Update(Configuration value)
         {
             // find if we have the configuration
-            var config = configs.Where(c => c.name == value.name).FirstOrDefault();
-            if (config != null)
+            Configuration config = null;
+            lock (_lock)
             {
-                config.Copy(value);
-                return value;
+                config = configs.Where(c => c.name == value.name).FirstOrDefault();
+                if (config != null)
+                {
+                    config.Copy(value);
+                    config = value;
+                }
             }
 
-            return null;
+            return config;
         }
 
         
@@ -199,14 +239,18 @@ namespace Nessus.Models
         public bool Remove(string name)
         {
             // find if we already have the configuration
-            var config = configs.Where(c => c.name == name).FirstOrDefault();
-            if (config != null)
+            bool bRemove = false;
+            lock (_lock)
             {
-                configs.Remove(config);
-                return true;
+                var config = configs.Where(c => c.name == name).FirstOrDefault();
+                if (config != null)
+                {
+                    configs.Remove(config);
+                    bRemove = true;
+                }
             }
 
-            return false;
+            return bRemove;
         }
     }
 }
