@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup hostname and port variables
+# Default hostname and port variables
 HOSTNAME=localhost
 PORT=28763
 
