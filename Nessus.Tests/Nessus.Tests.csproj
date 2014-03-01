@@ -113,9 +113,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\ConfigurationRepositoryTest.cs" />
+    <Compile Include="Repositories\ConfigurationRepositoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controllers\AuthorizationRepositoryTest.cs" />
+    <Compile Include="Repositories\AuthorizationRepositoryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
