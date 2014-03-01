@@ -113,8 +113,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ConfigurationRepositoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controllers\NessusControllerTest.cs" />
+    <Compile Include="Controllers\AuthorizationRepositoryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

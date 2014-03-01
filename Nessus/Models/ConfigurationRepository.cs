@@ -25,7 +25,7 @@ namespace Nessus.Models
         /// <summary>
         /// List of Configuration used to store them in memory
         /// </summary>
-        private static List<Configuration> configs = new List<Configuration>();
+        private List<Configuration> configs = new List<Configuration>();
 
 
         /// <summary>

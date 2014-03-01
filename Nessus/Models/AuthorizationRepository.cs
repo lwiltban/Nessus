@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web;
 
 namespace Nessus.Models
@@ -39,7 +40,7 @@ namespace Nessus.Models
             }
 
             // Create a Nessus token from the basic token and a timestamp in case we want to timeout user authorizations
-            string plainText = string.Format("{0}:{1}", basicToken, DateTime.Now.ToFileTime());
+            string plainText = string.Format("{0}:{1}", basicToken, DateTime.Now.ToString("HH:mm:ss.ffffff"));
             string token = SymmetricEncryption.Encrypt(plainText);
 
             if (!validNessusTokens.TryAdd(token, token))

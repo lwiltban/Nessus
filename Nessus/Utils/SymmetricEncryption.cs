@@ -11,76 +11,69 @@ namespace Nessus.Utils
 {
     /// <summary>
     /// Symmetric Encryption helper class to encrypt/decrypt Nessus tokens
-    /// </summary>
     public class SymmetricEncryption
     {
-		private static byte[] KEY = new byte[24] { 81, 104, 117, 96, 31, 80, 109, 104, 117, 104, 99, 39, 95, 110, 100, 32, 86, 105, 111, 108, 97, 32, 32, 32 };
-		private static byte[] IV = new byte[8] { 72, 75, 84, 86, 81, 72, 85, 64 };
-		
-        public static string Encrypt(string original)
-		{
-            if (original == null || original == string.Empty || original.Length == 0)
-                return string.Empty;
+        private static string _Password = "NessusTest";
+        private static string _salt = "12345";
 
-			using (var key = new TripleDESCryptoServiceProvider { Key = KEY, IV = IV })
-			{
-				byte[] buffer = Encrypt(original, key);
-				return ToHexString(buffer);
-			}
-		}
-
-        public static string Decrypt(string s)
+        public static string Encrypt(string value)
         {
-            if (s == null || s == string.Empty || s.Length == 0)
-                return string.Empty;
+            return SymmetricEncryption.Encrypt<RijndaelManaged>(value, _Password, _salt);
+        }
 
-            using (var key = new TripleDESCryptoServiceProvider { Key = KEY, IV = IV })
+        public static string Decrypt(string value)
+        {
+            return SymmetricEncryption.Decrypt<RijndaelManaged>(value, _Password, _salt);
+        }
+
+        public static string Encrypt<T>(string value, string password, string salt)
+             where T : SymmetricAlgorithm, new()
+        {
+            DeriveBytes rgb = new Rfc2898DeriveBytes(password, Encoding.Unicode.GetBytes(salt));
+
+            SymmetricAlgorithm algorithm = new T();
+
+            byte[] rgbKey = rgb.GetBytes(algorithm.KeySize >> 3);
+            byte[] rgbIV = rgb.GetBytes(algorithm.BlockSize >> 3);
+
+            ICryptoTransform transform = algorithm.CreateEncryptor(rgbKey, rgbIV);
+
+            using (MemoryStream buffer = new MemoryStream())
             {
-                var buffer = ToByteArray(s);
-                return Decrypt(buffer, key);
+                using (CryptoStream stream = new CryptoStream(buffer, transform, CryptoStreamMode.Write))
+                {
+                    using (StreamWriter writer = new StreamWriter(stream, Encoding.Unicode))
+                    {
+                        writer.Write(value);
+                    }
+                }
+
+                return Convert.ToBase64String(buffer.ToArray());
             }
         }
 
-        private static byte[] Encrypt(string PlainText, SymmetricAlgorithm key)
+        public static string Decrypt<T>(string text, string password, string salt)
+           where T : SymmetricAlgorithm, new()
         {
-            MemoryStream ms = new MemoryStream();
-            CryptoStream encStream = new CryptoStream(ms, key.CreateEncryptor(), CryptoStreamMode.Write);
-            StreamWriter sw = new StreamWriter(encStream);
-            sw.WriteLine(PlainText);
-            sw.Close();
-            byte[] buffer = ms.ToArray();
-            return buffer;
-        }
+            DeriveBytes rgb = new Rfc2898DeriveBytes(password, Encoding.Unicode.GetBytes(salt));
 
-        private static string ToHexString(byte[] data)
-        {
-            StringBuilder sb = new StringBuilder(data.Length * 2);
-            for (int i = 0; i < data.Length; i++)
-                sb.Append(data[i].ToString("X2"));
-            return sb.ToString();
-        }
+            SymmetricAlgorithm algorithm = new T();
 
-        private static byte[] ToByteArray(string hexString)
-        {
-            if (hexString == null)
-                throw new ArgumentNullException("hexString");
-            if ((hexString.Length & 1) != 0)
-                throw new ArgumentException("hexString must contain an even number of characters.");
-            byte[] result = new byte[hexString.Length / 2];
-            for (int i = 0; i < hexString.Length; i += 2)
-                result[i / 2] = byte.Parse(hexString.Substring(i, 2), NumberStyles.HexNumber);
-            return result;
-        }
+            byte[] rgbKey = rgb.GetBytes(algorithm.KeySize >> 3);
+            byte[] rgbIV = rgb.GetBytes(algorithm.BlockSize >> 3);
 
-        private static string Decrypt(byte[] CypherText, SymmetricAlgorithm key)
-        {
-            string val = string.Empty;
-            MemoryStream ms = new MemoryStream(CypherText);
-            CryptoStream encStream = new CryptoStream(ms, key.CreateDecryptor(), CryptoStreamMode.Read);
-            StreamReader sr = new StreamReader(encStream);
-            val = sr.ReadLine();
-            sr.Close();
-            return val;
+            ICryptoTransform transform = algorithm.CreateDecryptor(rgbKey, rgbIV);
+
+            using (MemoryStream buffer = new MemoryStream(Convert.FromBase64String(text)))
+            {
+                using (CryptoStream stream = new CryptoStream(buffer, transform, CryptoStreamMode.Read))
+                {
+                    using (StreamReader reader = new StreamReader(stream, Encoding.Unicode))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
         }
     }
 }
