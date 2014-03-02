@@ -9,6 +9,9 @@ using System.Web.Http;
 
 namespace Nessus.Controllers
 {
+    /// <summary>
+    /// Login controller provides the login api
+    /// </summary>
     public class LoginController : BaseController
     {
 

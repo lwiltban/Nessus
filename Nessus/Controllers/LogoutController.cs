@@ -10,7 +10,7 @@ using System.Web.Http;
 namespace Nessus.Controllers
 {
     /// <summary>
-    /// Logout controller that provides the logoug api
+    /// Logout controller that provides the logout api
     /// </summary>
     public class LogoutController : BaseController
     {
