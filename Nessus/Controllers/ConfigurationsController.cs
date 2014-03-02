@@ -109,6 +109,7 @@ namespace Nessus.Controllers
         // POST api/configuration
         /// <summary>
         /// Adds a new Configuration from the Configuration JSON passed in the post body
+        /// User must be authorized
         /// </summary>
         /// <param name="configuration">Configuration from the JSON in the post body</param>
         /// <returns>statuscode 201 with uri for the new configuration if added, or 404 if unable to add configuration</returns>
@@ -134,6 +135,7 @@ namespace Nessus.Controllers
         /// <summary>
         /// Updates the specified Configuration 
         /// Throws a 404 exception if unable to update Configuration
+        /// User must be authorized
         /// </summary>
         /// <param name="configuration">Configuration passed in the body</param>
         [HttpPut]
@@ -153,6 +155,7 @@ namespace Nessus.Controllers
         /// <summary>
         /// Deletes the configuration specified by the id (host)
         /// Throws a 404 exception if Configuration not found or any other problem
+        /// User must be authorized
         /// </summary>
         /// <param name="id">name of the Configuration to delete</param>
         [HttpDelete]

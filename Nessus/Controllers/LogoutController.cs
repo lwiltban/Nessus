@@ -19,6 +19,7 @@ namespace Nessus.Controllers
         /// <summary>
         /// Logout the user based on the Nessus token
         /// Throws 403 if not authorized
+        /// User must be authorized
         /// </summary>
         /// <returns>{"status","OK" or "ERROR"}</returns>
         public LogoutModel Get()
