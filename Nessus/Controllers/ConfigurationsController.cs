@@ -43,7 +43,7 @@ namespace Nessus.Controllers
         static readonly IConfigurationRepository repository = new ConfigurationRepository();
 
 
-        // GET api/configuration
+        // GET api/configurations
         /// <summary>
         /// Gets all the Configurations with an optional paging query
         /// User must be authorized
@@ -64,7 +64,7 @@ namespace Nessus.Controllers
         }
        
 
-        // GET api/configuration/host
+        // GET api/configurations/host
         /// <summary>
         /// Get a configuration based on host name
         /// User must be authorized
@@ -85,7 +85,7 @@ namespace Nessus.Controllers
         }
 
 
-        // Get api/configuration?sort=sortOrder
+        // Get api/configurations?sort=sortOrder
         /// <summary>
         /// Gets all the Configurations with an optional paging query
         /// User must be authorized
@@ -106,7 +106,7 @@ namespace Nessus.Controllers
         }
 
 
-        // POST api/configuration
+        // POST api/configurations
         /// <summary>
         /// Adds a new Configuration from the Configuration JSON passed in the post body
         /// User must be authorized
@@ -131,7 +131,7 @@ namespace Nessus.Controllers
         }
 
 
-        // PUT api/configuration/host
+        // PUT api/configurations/host
         /// <summary>
         /// Updates the specified Configuration 
         /// Throws a 404 exception if unable to update Configuration
@@ -151,7 +151,7 @@ namespace Nessus.Controllers
         }
 
 
-        // DELETE api/configuration/host
+        // DELETE api/configurations/host
         /// <summary>
         /// Deletes the configuration specified by the id (host)
         /// Throws a 404 exception if Configuration not found or any other problem
